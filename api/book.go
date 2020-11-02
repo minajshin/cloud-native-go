@@ -38,7 +38,7 @@ func FromJSON(data []byte) Book {
 	return book
 }
 
-func writeJson(w http.ResponseWriter, i interface{}) {
+func writeJSON(w http.ResponseWriter, i interface{}) {
 	b, err := json.Marshal(i)
 	if err != nil {
 		panic(err)
@@ -63,7 +63,7 @@ func BooksHandleFunc(w http.ResponseWriter, r *http.Request) {
 	switch method := r.Method; method {
 	case http.MethodGet:
 		books := AllBooks()
-		writeJson(w, books)
+		writeJSON(w, books)
 	case http.MethodPost:
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
@@ -83,6 +83,20 @@ func BooksHandleFunc(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func BookHandleFunc(w http.ResponseWriter, r *http.Request) {
+	isbn := r.URL.Path[len("/api/books/"):]
+	switch method := r.Method; method {
+	case http.MethodGet:
+		book, found := GetBook(isbn)
+		if found {
+			writeJSON(w, book)
+		} else {
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}
+}
+
+// CreateBook create a new Book if it does not exist
 func CreateBook(book Book) (string, bool) {
 	_, exists := books[book.ISBN]
 	if exists {
@@ -90,4 +104,10 @@ func CreateBook(book Book) (string, bool) {
 	}
 	books[book.ISBN] = book
 	return book.ISBN, true
+}
+
+// GetBook returns the book for a given isbn
+func GetBook(isbn string) (Book, bool) {
+	book, found := books[isbn]
+	return book, found
 }
