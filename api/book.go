@@ -105,6 +105,12 @@ func BookHandleFunc(w http.ResponseWriter, r *http.Request) {
 		} else {
 			w.WriteHeader(http.StatusNotFound)
 		}
+	case http.MethodDelete:
+		DeleteBook(isbn)
+		w.WriteHeader(http.StatusOK)
+	default:
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Unsupported request method"))
 	}
 }
 
@@ -131,4 +137,8 @@ func UpdateBook(isbn string, book Book) bool {
 		books[isbn] = book
 	}
 	return exists
+}
+
+func DeleteBook(isbn string) {
+	delete(books, isbn)
 }
