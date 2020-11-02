@@ -17,3 +17,12 @@ func (b Book) ToJSON() []byte {
 	}
 	return book
 }
+
+func FromJSON(data []byte) Book {
+	book := Book{}
+	err := json.Unmarshal(data, &book)
+	if err != nil {
+		panic(err)
+	}
+	return book
+}
